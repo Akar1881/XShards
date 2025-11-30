@@ -2,6 +2,8 @@ package com.xshards;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,15 +17,17 @@ import java.util.logging.Level;
 public class ShardManager {
     private final Xshards plugin;
     private final Map<UUID, ShardData> playerData;
-    private final Map<UUID, ShopItem> pendingPurchases; // Map for pending purchases
+    private final Map<UUID, ShopItem> pendingPurchases;
+    private final Map<UUID, TransferListener.TransferData> pendingTransfers;
     private final DatabaseManager databaseManager;
 
     public ShardManager(Xshards plugin) {
         this.plugin = plugin;
         this.playerData = new HashMap<>();
-        this.pendingPurchases = new HashMap<>(); // Initialize pending purchases
+        this.pendingPurchases = new HashMap<>();
+        this.pendingTransfers = new HashMap<>();
         this.databaseManager = plugin.getDatabaseManager();
-        loadAllPlayerData(); // Load data for all players initially
+        loadAllPlayerData();
     }
 
     // Add shards to a player's account
@@ -164,5 +168,38 @@ public class ShardManager {
 
     public void clearPendingPurchase(Player player) {
         pendingPurchases.remove(player.getUniqueId());
+    }
+
+    public void initiateTransfer(Player sender, Player recipient, int amount) {
+        Bukkit.createInventory(null, 9, "Confirm Transfer");
+        org.bukkit.inventory.Inventory confirmInv = Bukkit.createInventory(null, 9, "Confirm Transfer");
+
+        ItemStack confirmItem = new ItemStack(org.bukkit.Material.GREEN_WOOL);
+        ItemMeta confirmMeta = confirmItem.getItemMeta();
+        if (confirmMeta != null) {
+            confirmMeta.setDisplayName("§aConfirm Transfer of " + amount + " shards to " + recipient.getName());
+            confirmItem.setItemMeta(confirmMeta);
+        }
+
+        ItemStack cancelItem = new ItemStack(org.bukkit.Material.RED_WOOL);
+        ItemMeta cancelMeta = cancelItem.getItemMeta();
+        if (cancelMeta != null) {
+            cancelMeta.setDisplayName("§cCancel Transfer");
+            cancelItem.setItemMeta(cancelMeta);
+        }
+
+        confirmInv.setItem(3, confirmItem);
+        confirmInv.setItem(5, cancelItem);
+
+        sender.openInventory(confirmInv);
+        pendingTransfers.put(sender.getUniqueId(), new TransferListener.TransferData(recipient.getUniqueId(), amount));
+    }
+
+    public TransferListener.TransferData getPendingTransfer(Player player) {
+        return pendingTransfers.get(player.getUniqueId());
+    }
+
+    public void clearPendingTransfer(Player player) {
+        pendingTransfers.remove(player.getUniqueId());
     }
 }

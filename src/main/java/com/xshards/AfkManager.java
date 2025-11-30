@@ -7,7 +7,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.Sound;
-import org.bukkit.ChatColor;
 import org.bukkit.World.Environment;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -31,9 +30,11 @@ public class AfkManager {
     private final Map<UUID, Location> pendingAfkTeleports;
     private final Map<UUID, BukkitRunnable> afkCountdowns;
     private final Map<UUID, BossBar> afkBossBars;
+    private final MessageManager messageManager;
 
-    public AfkManager(Xshards plugin) {
+    public AfkManager(Xshards plugin, MessageManager messageManager) {
         this.plugin = plugin;
+        this.messageManager = messageManager;
         this.afkData = new HashMap<>();
         this.afkStartTime = new HashMap<>();
         this.databaseManager = plugin.getDatabaseManager();
@@ -165,14 +166,14 @@ public class AfkManager {
         // Check if the world is Nether or End
         World world = player.getWorld();
         if (world.getEnvironment() == Environment.NETHER || world.getEnvironment() == Environment.THE_END) {
-            player.sendMessage(ChatColor.RED + "You cannot set AFK location in the Nether or End worlds!");
-            player.sendMessage(ChatColor.YELLOW + "We recommend using a custom world for AFK (use MultiVerse-Core plugin).");
+            player.sendMessage(messageManager.get("afk.invalid-world"));
+            player.sendMessage(messageManager.get("afk.invalid-world-info"));
             return;
         }
         
         afkLocation = player.getLocation();
         saveAfkLocation();
-        player.sendMessage(ChatColor.GREEN + "AFK location has been set!");
+        player.sendMessage(messageManager.get("afk.location-set"));
     }
 
     public void startAfkProcess(Player player) {
@@ -180,13 +181,13 @@ public class AfkManager {
         
         // Check if player is already in AFK mode
         if (isAfk(player)) {
-            player.sendMessage(ChatColor.RED + "You are already in AFK mode!");
+            player.sendMessage(messageManager.get("afk.already-afk"));
             return;
         }
         
         // Check if AFK location is set
         if (afkLocation == null) {
-            player.sendMessage(ChatColor.RED + "AFK location is not set! An admin needs to set it with /setafk");
+            player.sendMessage(messageManager.get("afk.no-location"));
             return;
         }
         
@@ -199,7 +200,7 @@ public class AfkManager {
         
         // Create boss bar for countdown
         BossBar bossBar = Bukkit.createBossBar(
-            ChatColor.GOLD + "AFK Teleport in 5 seconds... Stand still!",
+            messageManager.get("afk.teleport-boss-bar"),
             BarColor.YELLOW,
             BarStyle.SOLID
         );
@@ -207,7 +208,7 @@ public class AfkManager {
         afkBossBars.put(playerUUID, bossBar);
         
         // Start countdown
-        player.sendMessage(ChatColor.YELLOW + "Stand still! Teleporting to AFK in 5 seconds...");
+        player.sendMessage(messageManager.get("afk.startup-message"));
         
         BukkitRunnable countdown = new BukkitRunnable() {
             int seconds = 5;
@@ -216,7 +217,7 @@ public class AfkManager {
             public void run() {
                 // Check if player moved
                 if (hasPlayerMoved(player, initialLocation)) {
-                    player.sendMessage(ChatColor.RED + "AFK teleport cancelled - you moved!");
+                    player.sendMessage(messageManager.get("afk.teleport-cancelled"));
                     cancelAfkProcess(player);
                     return;
                 }
@@ -229,7 +230,7 @@ public class AfkManager {
                     completeAfkProcess(player);
                     cancel();
                 } else {
-                    ActionBarUtil.sendActionBar(player, ChatColor.YELLOW + "AFK teleport in " + seconds + "...");
+                    ActionBarUtil.sendActionBar(player, messageManager.get("afk.teleport-countdown").replace("{seconds}", String.valueOf(seconds)));
                     seconds--;
                 }
             }
@@ -252,7 +253,7 @@ public class AfkManager {
         
         // Teleport player to AFK location
         player.teleport(afkLocation);
-        player.sendMessage(ChatColor.GREEN + "You are now in AFK mode!");
+        player.sendMessage(messageManager.get("afk.entered-mode"));
         
         // Set AFK status
         afkData.put(playerUUID, new AfkData());
@@ -379,19 +380,19 @@ public class AfkManager {
             Location lastLocation = getLastLocation(player);
             if (lastLocation != null) {
                 player.teleport(lastLocation);
-                player.sendMessage(ChatColor.GREEN + "You have quit AFK mode.");
+                player.sendMessage(messageManager.get("afk.exited-mode"));
             } else {
                 // If we can't find the last location, don't teleport the player
-                player.sendMessage(ChatColor.YELLOW + "You have quit AFK mode. Your previous location could not be found.");
+                player.sendMessage(messageManager.get("afk.exited-mode-no-location"));
             }
             // Always remove AFK data regardless of teleport success
             removeAfkData(player);
         } else if (isPendingAfk(player)) {
             // Cancel pending AFK teleport
             cancelAfkProcess(player);
-            player.sendMessage(ChatColor.YELLOW + "AFK teleport cancelled.");
+            player.sendMessage(messageManager.get("afk.teleport-cancelled-manual"));
         } else {
-            player.sendMessage(ChatColor.RED + "You were not in AFK mode.");
+            player.sendMessage(messageManager.get("afk.not-in-afk"));
         }
     }
 
@@ -406,11 +407,11 @@ public class AfkManager {
             public void run() {
                 if (isAfk(player) && player.isOnline()) {
                     // Use action bar instead of title for less intrusive display
-                    ActionBarUtil.sendActionBar(player, ChatColor.LIGHT_PURPLE + "Earn shards in " + countdown + "s");
+                    ActionBarUtil.sendActionBar(player, messageManager.get("afk.earn-countdown").replace("{seconds}", String.valueOf(countdown)));
 
                     if (countdown <= 0) {
                         plugin.getShardManager().addShards(player, afkAmount);
-                        player.sendMessage(ChatColor.GREEN + "You earned " + afkAmount + " shard(s) while AFK!");
+                        player.sendMessage(messageManager.get("afk.earned").replace("{amount}", String.valueOf(afkAmount)));
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.0f);
                         countdown = (int) afkEarnSeconds;
                     } else {

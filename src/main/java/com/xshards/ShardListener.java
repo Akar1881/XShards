@@ -16,12 +16,14 @@ import java.util.UUID;
 public class ShardListener implements Listener {
     private final ShardManager shardManager;
     private final Xshards plugin;
+    private final MessageManager messageManager;
     private final Map<UUID, Map<UUID, Long>> lastKillTimestamps = new HashMap<>();
     private final Map<UUID, Long> lastEarnedTime = new HashMap<>();
 
-    public ShardListener(ShardManager shardManager, Xshards plugin) {
+    public ShardListener(ShardManager shardManager, Xshards plugin, MessageManager messageManager) {
         this.shardManager = shardManager;
         this.plugin = plugin;
+        this.messageManager = messageManager;
         startShardEarningTask();
     }
 
@@ -57,7 +59,7 @@ public class ShardListener implements Listener {
                         long lastTime = lastEarnedTime.get(playerId);
                         if ((currentTime - lastTime) >= earnShardTime) {
                             shardManager.addShards(player, shards);
-                            player.sendMessage("§aYou earned " + shards + " shards for staying online!");
+                            player.sendMessage(messageManager.get("shards.playtime-earned").replace("{amount}", String.valueOf(shards)));
                             lastEarnedTime.put(playerId, currentTime);
                         }
                     } else {
@@ -91,12 +93,12 @@ public class ShardListener implements Listener {
                     (currentTime - killerKillTimestamps.get(killedUUID) >= 24 * 60 * 60 * 1000)) {
                     int shardsPerKill = plugin.getConfig().getInt("earning.kills.amount", 10);
                     shardManager.addShards(killer, shardsPerKill);
-                    killer.sendMessage("§aYou earned " + shardsPerKill + " shards for killing " + killedPlayer.getName());
+                    killer.sendMessage(messageManager.get("shards.kill-earned").replace("{amount}", String.valueOf(shardsPerKill)).replace("{player}", killedPlayer.getName()));
 
                     killerKillTimestamps.put(killedUUID, currentTime);
                     lastKillTimestamps.put(killerUUID, killerKillTimestamps);
                 } else {
-                    killer.sendMessage("§cYou can only earn shards from killing " + killedPlayer.getName() + " once every 24 hours.");
+                    killer.sendMessage(messageManager.get("shards.kill-cooldown").replace("{player}", killedPlayer.getName()));
                 }
             }
         }

@@ -4,19 +4,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.ChatColor;
 
 public class AfkCommand implements CommandExecutor {
     private final AfkManager afkManager;
+    private final MessageManager messageManager;
 
-    public AfkCommand(AfkManager afkManager) {
+    public AfkCommand(AfkManager afkManager, MessageManager messageManager) {
         this.afkManager = afkManager;
+        this.messageManager = messageManager;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be executed by a player.");
+            sender.sendMessage(messageManager.get("command.only-player"));
             return true;
         }
 
@@ -24,23 +25,23 @@ public class AfkCommand implements CommandExecutor {
 
         // Check if player has permission
         if (!player.hasPermission("xshards.use")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            player.sendMessage(messageManager.get("command.no-permission"));
             return true;
         }
 
         // Check if AFK earning is enabled
         if (!afkManager.getPlugin().getConfig().getBoolean("earning.afk.enabled", true)) {
-            player.sendMessage(ChatColor.RED + "AFK mode is currently disabled.");
+            player.sendMessage(messageManager.get("afk.disabled"));
             return true;
         }
 
         if (afkManager.isAfk(player)) {
-            player.sendMessage(ChatColor.RED + "You are already in AFK mode. Use /quitafk to exit.");
+            player.sendMessage(messageManager.get("afk.already-afk"));
             return true;
         }
         
         if (afkManager.isPendingAfk(player)) {
-            player.sendMessage(ChatColor.RED + "You are already in the process of entering AFK mode.");
+            player.sendMessage(messageManager.get("afk.already-pending"));
             return true;
         }
 

@@ -1,3 +1,33 @@
+Version 1.2.3 - Shard Transfer, Leaderboard, and Daily Rewards
+
+Features:
+- Added Shard Transfer system for player-to-player economy
+- Added GUI Leaderboard with pagination and player head display
+- Added Daily Rewards system with automatic login bonuses
+- Added Streak Multiplier system (Easy/Mid/Hard modes)
+- Added configurable message system (100+ message keys)
+
+Changes:
+- Transfer command with confirmation dialog
+- Leaderboard displays rank, player name, and shard amount
+- 7 players per page with navigation buttons
+- Daily rewards track consecutive logins and reset on missed days
+- All messages customizable via messages.yml
+
+New Commands:
+- /transfer <player> <amount> - Transfer shards to player
+- /leaderboard [page] - View leaderboard with pagination
+
+Technical Updates:
+- Added TransferCommand and TransferListener
+- Added LeaderboardManager with database queries
+- Added LeaderboardCommand and LeaderboardListener
+- Added DailyRewardManager with streak tracking
+- Added StreakData class for player streak information
+- Implemented GUI pagination system
+- Enhanced database queries for leaderboard sorting
+- Updated version to 1.2.3
+
 Version 1.2.2 - Database Storage and AFK System Improvements
 
 Features:

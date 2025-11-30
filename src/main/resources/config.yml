@@ -40,5 +40,34 @@ earning:
     # We highly recommend setting up a dedicated world for AFK using MultiVerse-Core
     # This improves server performance and reduces potential bugs
 
+# Daily Rewards System
+daily-rewards:
+  enabled: true # Enable/disable daily rewards
+  amount: 10 # Number of shards given per day
+  
+  # Streak/Multiplier System
+  streak:
+    enabled: true # Enable/disable streak multiplier
+    increment: 0.1 # Multiplier increase per stage completion (e.g., 0.1x each time)
+    # Choose ONE active stage: easy, mid, or hard
+    # Only one stage can be active at a time
+    active_stage: easy # Options: easy, mid, hard
+    
+    # Stage difficulties (only active_stage is used)
+    easy:
+      interval: 1 # Multiplier increases every 1 day of consecutive logins
+    mid:
+      interval: 3 # Multiplier increases every 3 days of consecutive logins
+    hard:
+      interval: 7 # Multiplier increases every 7 days of consecutive logins
+
+# Shard Transfer System
+transfer:
+  enabled: true # Enable/disable shard transfers between players
+
+# Leaderboard System
+leaderboard:
+  enabled: true # Enable/disable leaderboard
+
 # PlaceholderAPI Integration
 placeholderapi: true

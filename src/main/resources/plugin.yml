@@ -1,5 +1,5 @@
 name: Xshards
-version: 1.2.2
+version: 1.2.3
 main: com.xshards.Xshards
 api-version: 1.17
 
@@ -25,14 +25,26 @@ commands:
   xshards:
     description: Plugin management commands
     usage: /<command> [reload|help]
+  transfer:
+    description: Transfer shards to other players
+    usage: /<command> <player> <amount>
+  leaderboard:
+    description: View the shards leaderboard
+    usage: /<command> [page]
 
 permissions:
   xshards.use:
     description: Allows access to shard and AFK commands
     default: true
   xshards.admin:
-    description: Allows access to admin commands for managing the shop and AFK locations
+    description: Allows access to admin commands
     default: op
+  xshards.transfer:
+    description: Allows transferring shards to other players
+    default: true
+  xshards.leaderboard:
+    description: Allows viewing the leaderboard
+    default: true
 
 softdepend:
   - PlaceholderAPI

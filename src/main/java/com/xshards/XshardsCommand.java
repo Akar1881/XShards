@@ -1,6 +1,5 @@
 package com.xshards;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -8,9 +7,11 @@ import org.bukkit.entity.Player;
 
 public class XshardsCommand implements CommandExecutor {
     private final Xshards plugin;
+    private final MessageManager messageManager;
 
-    public XshardsCommand(Xshards plugin) {
+    public XshardsCommand(Xshards plugin, MessageManager messageManager) {
         this.plugin = plugin;
+        this.messageManager = messageManager;
     }
 
     @Override
@@ -23,11 +24,11 @@ public class XshardsCommand implements CommandExecutor {
         switch (args[0].toLowerCase()) {
             case "reload":
                 if (!sender.hasPermission("xshards.admin")) {
-                    sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+                    sender.sendMessage(messageManager.get("command.no-permission"));
                     return true;
                 }
                 plugin.reloadPlugin(); // Use the reloadPlugin method which handles database reconnection
-                sender.sendMessage(ChatColor.GREEN + "Xshards configuration reloaded!");
+                sender.sendMessage(messageManager.get("xshards.reloaded"));
                 break;
 
             case "help":
@@ -35,49 +36,48 @@ public class XshardsCommand implements CommandExecutor {
                 break;
 
             default:
-                sender.sendMessage(ChatColor.RED + "Unknown command. Use /xshards help for commands.");
+                sender.sendMessage(messageManager.get("xshards.unknown-command"));
                 break;
         }
         return true;
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "========== Xshards Help ==========");
+        sender.sendMessage(messageManager.get("xshards.help.header"));
         
         // General Commands
-        sender.sendMessage(ChatColor.YELLOW + "General Commands:");
-        sender.sendMessage(ChatColor.YELLOW + "/shards " + ChatColor.WHITE + "- Check your shard balance");
-        sender.sendMessage(ChatColor.YELLOW + "/store " + ChatColor.WHITE + "- Open the shard shop");
-        sender.sendMessage(ChatColor.YELLOW + "/afk " + ChatColor.WHITE + "- Enter AFK mode");
-        sender.sendMessage(ChatColor.YELLOW + "/quitafk " + ChatColor.WHITE + "- Exit AFK mode");
+        sender.sendMessage(messageManager.get("xshards.help.general-title"));
+        sender.sendMessage(messageManager.get("xshards.help.general-shards"));
+        sender.sendMessage(messageManager.get("xshards.help.general-store"));
+        sender.sendMessage(messageManager.get("xshards.help.general-afk"));
+        sender.sendMessage(messageManager.get("xshards.help.general-quitafk"));
 
         // Shop Commands
-        sender.sendMessage(ChatColor.YELLOW + "\nShop Commands:");
-        sender.sendMessage(ChatColor.YELLOW + "/store edit <slot> <price> " + ChatColor.WHITE + "- Edit item price");
-        sender.sendMessage(ChatColor.YELLOW + "/store add <slot> <price> " + ChatColor.WHITE + "- Add held item to shop");
-        sender.sendMessage(ChatColor.YELLOW + "/store remove <slot> " + ChatColor.WHITE + "- Remove item from shop");
+        sender.sendMessage(messageManager.get("xshards.help.shop-title"));
+        sender.sendMessage(messageManager.get("xshards.help.shop-edit"));
+        sender.sendMessage(messageManager.get("xshards.help.shop-add"));
+        sender.sendMessage(messageManager.get("xshards.help.shop-remove"));
 
         // Admin Commands
         if (sender.hasPermission("xshards.admin")) {
-            sender.sendMessage(ChatColor.GOLD + "\nAdmin Commands:");
-            sender.sendMessage(ChatColor.YELLOW + "/setafk " + ChatColor.WHITE + "- Set AFK location");
-            sender.sendMessage(ChatColor.YELLOW + "/afkremove " + ChatColor.WHITE + "- Remove AFK location");
-            sender.sendMessage(ChatColor.YELLOW + "/xshards reload " + ChatColor.WHITE + "- Reload configuration");
-            sender.sendMessage(ChatColor.YELLOW + "/shards give <player> <amount> " + ChatColor.WHITE + "- Give shards to player");
+            sender.sendMessage(messageManager.get("xshards.help.admin-title"));
+            sender.sendMessage(messageManager.get("xshards.help.admin-setafk"));
+            sender.sendMessage(messageManager.get("xshards.help.admin-afkremove"));
+            sender.sendMessage(messageManager.get("xshards.help.admin-reload"));
+            sender.sendMessage(messageManager.get("xshards.help.admin-give"));
         }
 
         // Earning Methods Info
-        sender.sendMessage(ChatColor.GOLD + "\nEarning Methods:");
-        sender.sendMessage(ChatColor.WHITE + "• Playtime: Earn shards by staying online");
-        sender.sendMessage(ChatColor.WHITE + "• PvP: Earn shards from player kills");
-        sender.sendMessage(ChatColor.WHITE + "• AFK: Earn shards while in AFK mode");
+        sender.sendMessage(messageManager.get("xshards.help.earning-title"));
+        sender.sendMessage(messageManager.get("xshards.help.earning-playtime"));
+        sender.sendMessage(messageManager.get("xshards.help.earning-pvp"));
+        sender.sendMessage(messageManager.get("xshards.help.earning-afk"));
         
         // Storage Info
-        sender.sendMessage(ChatColor.GOLD + "\nStorage System:");
-        sender.sendMessage(ChatColor.WHITE + "• Current storage: " + 
-            ChatColor.YELLOW + plugin.getDatabaseManager().getStorageType().toUpperCase());
-        sender.sendMessage(ChatColor.WHITE + "• Configure in config.yml to use SQLite or MySQL");
+        sender.sendMessage(messageManager.get("xshards.help.storage-title"));
+        sender.sendMessage(messageManager.get("xshards.help.storage-current").replace("{type}", plugin.getDatabaseManager().getStorageType().toUpperCase()));
+        sender.sendMessage(messageManager.get("xshards.help.storage-configure"));
 
-        sender.sendMessage(ChatColor.GOLD + "================================");
+        sender.sendMessage(messageManager.get("xshards.help.footer"));
     }
 }

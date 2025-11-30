@@ -13,13 +13,14 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 public class AfkListener implements Listener {
     private final AfkManager afkManager;
+    private final MessageManager messageManager;
 
-    public AfkListener(AfkManager afkManager) {
+    public AfkListener(AfkManager afkManager, MessageManager messageManager) {
         this.afkManager = afkManager;
+        this.messageManager = messageManager;
     }
 
     @EventHandler
@@ -33,7 +34,7 @@ public class AfkListener implements Listener {
             Bukkit.getScheduler().runTaskLater(afkManager.getPlugin(), () -> {
                 // Remove AFK status automatically
                 afkManager.removeAfkData(player);
-                player.sendMessage(ChatColor.GREEN + "You have been automatically removed from AFK mode.");
+                player.sendMessage(messageManager.get("afk.removed-on-join"));
             }, 20L); // 1 second delay (20 ticks)
         }
     }
@@ -45,7 +46,7 @@ public class AfkListener implements Listener {
 
         // Allow only /quitafk command while AFK
         if (afkManager.isAfk(player) && !command.startsWith("/quitafk")) {
-            player.sendMessage(ChatColor.RED + "You can't use commands while in AFK mode. Use /quitafk to exit AFK mode.");
+            player.sendMessage(messageManager.get("afk.commands-blocked"));
             event.setCancelled(true); // Cancel other commands
         }
     }
@@ -60,7 +61,7 @@ public class AfkListener implements Listener {
         // Cancel interactions while in AFK mode
         if (afkManager.isAfk(player)) {
             event.setCancelled(true);
-            ActionBarUtil.sendActionBar(player, ChatColor.RED + "You are in AFK mode. Use /quitafk to exit.");
+            ActionBarUtil.sendActionBar(player, messageManager.get("afk.interaction-blocked"));
         }
     }
     

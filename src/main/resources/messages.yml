@@ -1,0 +1,113 @@
+# Xshards Plugin - Messages Configuration
+# Use & for color codes (e.g., &a for green, &c for red, &e for yellow)
+# See https://wiki.ess3.net/wiki/Color_Codes for color code reference
+
+# Command Execution Messages
+command.only-player: "&cThis command can only be executed by a player."
+command.only-console: "&cThis command can only be run by players."
+command.no-permission: "&cYou don't have permission to use this command."
+
+# Shard Commands
+shards.balance: "You have {amount} shards."
+shards.received: "You have received {amount} shards from {sender}!"
+shards.given: "You have given {amount} shards to {player}."
+shards.invalid-amount: "&cInvalid amount. Please enter a number."
+shards.player-not-found: "&cPlayer not found."
+shards.console-usage: "&cConsole usage: /shards give <player> <amount>"
+shards.usage: "&cUsage: /shards or /shards give <player> <amount>"
+shards.playtime-earned: "&aYou earned {amount} shards for staying online!"
+shards.kill-earned: "&aYou earned {amount} shards for killing {player}"
+shards.kill-cooldown: "&cYou can only earn shards from killing {player} once every 24 hours."
+
+# Shop Messages
+shop.insufficient-shards: "&cYou don't have enough shards to purchase this item."
+shop.purchase-success: "&aYou have purchased {item} for {price} shards!"
+shop.purchase-cancelled: "&cPurchase canceled."
+shop.command-only-player: "&cThis command can only be run by players."
+shop.edit-usage: "&cUsage: /store edit <slot> <price>"
+shop.edit-success: "&aPrice updated for item in slot {slot} to {price} shards."
+shop.add-usage: "&cUsage: /store add <slot> <price>"
+shop.add-no-item: "&cYou must hold an item to add to the shop."
+shop.add-success: "&aItem added to shop in slot {slot} for {price} shards."
+shop.remove-usage: "&cUsage: /store remove <slot>"
+shop.remove-success: "&aItem removed from slot {slot}"
+shop.no-item-in-slot: "&cNo item exists in slot {slot}"
+shop.invalid-number: "&cInvalid slot or price number."
+shop.usage: "&cUsage: /store or /store edit <slot> <price> or /store add <slot> <price> or /store remove <slot>"
+
+# AFK Mode Messages
+afk.disabled: "&cAFK mode is currently disabled."
+afk.already-afk: "&cYou are already in AFK mode. Use /quitafk to exit."
+afk.already-pending: "&cYou are already in the process of entering AFK mode."
+afk.removed-on-join: "&aYou have been automatically removed from AFK mode."
+afk.commands-blocked: "&cYou can't use commands while in AFK mode. Use /quitafk to exit AFK mode."
+afk.interaction-blocked: "&cYou are in AFK mode. Use /quitafk to exit."
+afk.invalid-world: "&cYou cannot set AFK location in the Nether or End worlds!"
+afk.invalid-world-info: "&eWe recommend using a custom world for AFK (use MultiVerse-Core plugin)."
+afk.location-set: "&aAFK location has been set!"
+afk.not-in-afk: "&cYou were not in AFK mode."
+afk.no-location: "&cAFK location is not set! An admin needs to set it with /setafk"
+afk.startup-message: "&eStand still! Teleporting to AFK in 5 seconds..."
+afk.teleport-countdown: "&eAFK teleport in {seconds}..."
+afk.teleport-boss-bar: "&6AFK Teleport in 5 seconds... Stand still!"
+afk.teleport-cancelled: "&cAFK teleport cancelled - you moved!"
+afk.teleport-cancelled-manual: "&eAFK teleport cancelled."
+afk.entered-mode: "&aYou are now in AFK mode!"
+afk.exited-mode: "&aYou have quit AFK mode."
+afk.exited-mode-no-location: "&eYou have quit AFK mode. Your previous location could not be found."
+afk.earned: "&aYou earned {amount} shard(s) while AFK!"
+afk.earn-countdown: "&dEarn shards in {seconds}s"
+afk.set-admin-message: "&aYour AFK location has been set to your current position!"
+afk.set-info-1: "&eNote: We recommend setting AFK location in a custom world for optimal performance."
+afk.set-info-2: "&eYou can use MultiVerse-Core plugin to create a dedicated AFK world."
+afk.remove-success: "&aThe AFK location has been removed!"
+afk.remove-only-player: "&cOnly players can remove the AFK location."
+
+# Xshards General Messages
+xshards.reloaded: "&aXshards configuration reloaded!"
+xshards.unknown-command: "&cUnknown command. Use /xshards help for commands."
+
+# Help Menu
+xshards.help.header: "&6========== Xshards Help =========="
+xshards.help.general-title: "&eGeneral Commands:"
+xshards.help.general-shards: "&e/shards &f- Check your shard balance"
+xshards.help.general-store: "&e/store &f- Open the shard shop"
+xshards.help.general-afk: "&e/afk &f- Enter AFK mode"
+xshards.help.general-quitafk: "&e/quitafk &f- Exit AFK mode"
+xshards.help.shop-title: "&eShop Commands:"
+xshards.help.shop-edit: "&e/store edit <slot> <price> &f- Edit item price"
+xshards.help.shop-add: "&e/store add <slot> <price> &f- Add held item to shop"
+xshards.help.shop-remove: "&e/store remove <slot> &f- Remove item from shop"
+xshards.help.admin-title: "&6Admin Commands:"
+xshards.help.admin-setafk: "&e/setafk &f- Set AFK location"
+xshards.help.admin-afkremove: "&e/afkremove &f- Remove AFK location"
+xshards.help.admin-reload: "&e/xshards reload &f- Reload configuration"
+xshards.help.admin-give: "&e/shards give <player> <amount> &f- Give shards to player"
+xshards.help.earning-title: "&6Earning Methods:"
+xshards.help.earning-playtime: "&f• Playtime: Earn shards by staying online"
+xshards.help.earning-pvp: "&f• PvP: Earn shards from player kills"
+xshards.help.earning-afk: "&f• AFK: Earn shards while in AFK mode"
+xshards.help.storage-title: "&6Storage System:"
+xshards.help.storage-current: "&f• Current storage: {type}"
+xshards.help.storage-configure: "&f• Configure in config.yml to use SQLite or MySQL"
+xshards.help.footer: "&6================================"
+
+# Daily Rewards Messages
+daily-reward.received: "&6[Daily Reward] &aYou received {amount} shards! Come back tomorrow for more!"
+daily-reward.streak-active: "&e[Streak] &aCurrent streak: {days} days (Multiplier: {multiplier}x - {stage} stage)"
+daily-reward.streak-reset: "&e[Streak] &cYour streak has been reset. Start fresh today!"
+
+# Transfer Messages
+transfer.disabled: "&cShard transfers are currently disabled."
+transfer.usage: "&cUsage: /transfer <player> <amount>"
+transfer.cannot-self: "&cYou cannot transfer shards to yourself."
+transfer.invalid-amount: "&cInvalid amount. Please enter a positive number."
+transfer.insufficient: "&cYou don't have enough shards to complete this transfer."
+transfer.initiated: "&eInitiating transfer of {amount} shards to {player}..."
+transfer.success-sender: "&aSuccessfully transferred {amount} shards to {player}!"
+transfer.success-recipient: "&aYou received {amount} shards from {player}!"
+transfer.cancelled: "&cTransfer cancelled."
+
+# Leaderboard Messages
+leaderboard.title: "&6Shards Leaderboard"
+leaderboard.usage: "&cUsage: /leaderboard [page]"

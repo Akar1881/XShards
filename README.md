@@ -16,6 +16,23 @@ A comprehensive Minecraft plugin for managing a shard-based economy system with 
   - Price editing system
   - Purchase confirmation interface
 
+- 🔄 **Shard Transfer System**
+  - Send shards to other players
+  - GUI confirmation dialog
+  - Automatic validation and balance checking
+
+- 🏆 **Leaderboard System**
+  - View top players by shard count
+  - GUI with player heads and rankings
+  - Pagination support (7 players per page)
+  - Database sorting and tracking
+
+- 📅 **Daily Rewards with Streaks**
+  - Daily login bonuses
+  - Streak multiplier system (Easy/Mid/Hard)
+  - Auto-reset on missed days
+  - Fully configurable multipliers
+
 - 💤 **Advanced AFK System**
   - Persistent location storage
   - Automatic return to previous location
@@ -54,6 +71,8 @@ A comprehensive Minecraft plugin for managing a shard-based economy system with 
 - `/store` - Open the shard shop
 - `/afk` - Enter AFK mode
 - `/quitafk` - Exit AFK mode
+- `/transfer <player> <amount>` - Transfer shards to another player
+- `/leaderboard [page]` - View the shards leaderboard
 
 ### Admin Commands
 - `/store edit <slot> <price>` - Edit item price in shop
@@ -68,6 +87,8 @@ A comprehensive Minecraft plugin for managing a shard-based economy system with 
 
 - `xshards.use` - Access to basic commands (default: true)
 - `xshards.admin` - Access to admin commands (default: op)
+- `xshards.transfer` - Access to shard transfer command (default: true)
+- `xshards.leaderboard` - Access to leaderboard (default: true)
 
 ## Configuration
 

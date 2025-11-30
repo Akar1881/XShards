@@ -14,10 +14,12 @@ import java.util.ArrayList;
 public class ShopListener implements Listener {
     private final ShopManager shopManager;
     private final ShardManager shardManager;
+    private final MessageManager messageManager;
 
-    public ShopListener(ShopManager shopManager, ShardManager shardManager) {
+    public ShopListener(ShopManager shopManager, ShardManager shardManager, MessageManager messageManager) {
         this.shopManager = shopManager;
         this.shardManager = shardManager;
+        this.messageManager = messageManager;
     }
 
     @EventHandler
@@ -33,7 +35,7 @@ public class ShopListener implements Listener {
                     if (shardManager.getShards(player) >= item.getPrice()) {
                         openConfirmationGUI(player, item);
                     } else {
-                        player.sendMessage("You don't have enough shards to purchase this item.");
+                        player.sendMessage(messageManager.get("shop.insufficient-shards"));
                     }
                 }
             }
@@ -86,9 +88,9 @@ public class ShopListener implements Listener {
                     }
                     shardManager.addShards(player, -((int)price));
                     player.getInventory().addItem(purchasedItem);
-                    player.sendMessage("§aYou have purchased " + purchasedItem.getType() + " for " + price + " shards!");
+                    player.sendMessage(messageManager.get("shop.purchase-success").replace("{item}", purchasedItem.getType().toString()).replace("{price}", String.valueOf(price)));
                 } else if (event.getCurrentItem().getType() == Material.RED_WOOL) {
-                    player.sendMessage("§cPurchase canceled.");
+                    player.sendMessage(messageManager.get("shop.purchase-cancelled"));
                 }
                 shardManager.clearPendingPurchase(player);
                 player.closeInventory();

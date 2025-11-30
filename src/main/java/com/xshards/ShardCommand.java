@@ -8,9 +8,11 @@ import org.bukkit.entity.Player;
 
 public class ShardCommand implements CommandExecutor {
     private final ShardManager shardManager;
+    private final MessageManager messageManager;
 
-    public ShardCommand(ShardManager shardManager) {
+    public ShardCommand(ShardManager shardManager, MessageManager messageManager) {
         this.shardManager = shardManager;
+        this.messageManager = messageManager;
     }
 
     @Override
@@ -21,21 +23,21 @@ public class ShardCommand implements CommandExecutor {
             if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
                 Player targetPlayer = Bukkit.getPlayer(args[1]);
                 if (targetPlayer == null) {
-                    sender.sendMessage("Player not found.");
+                    sender.sendMessage(messageManager.get("shards.player-not-found"));
                     return true;
                 }
 
                 try {
                     int amount = Integer.parseInt(args[2]);
                     shardManager.addShards(targetPlayer, amount);
-                    sender.sendMessage("You have given " + amount + " shards to " + targetPlayer.getName() + ".");
-                    targetPlayer.sendMessage("You have received " + amount + " shards from Console!");
+                    sender.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
+                    targetPlayer.sendMessage(messageManager.get("shards.received").replace("{amount}", String.valueOf(amount)).replace("{sender}", "Console"));
                 } catch (NumberFormatException e) {
-                    sender.sendMessage("Invalid amount. Please enter a number.");
+                    sender.sendMessage(messageManager.get("shards.invalid-amount"));
                 }
                 return true;
             } else {
-                sender.sendMessage("Console usage: /shards give <player> <amount>");
+                sender.sendMessage(messageManager.get("shards.console-usage"));
                 return true;
             }
         }
@@ -46,7 +48,7 @@ public class ShardCommand implements CommandExecutor {
         // /shards command with no arguments: check the player's shard balance
         if (args.length == 0) {
             int playerShards = shardManager.getShards(player);
-            player.sendMessage("You have " + playerShards + " shards.");
+            player.sendMessage(messageManager.get("shards.balance").replace("{amount}", String.valueOf(playerShards)));
             return true;
         }
 
@@ -54,22 +56,22 @@ public class ShardCommand implements CommandExecutor {
         if (args.length == 3 && args[0].equalsIgnoreCase("give") && player.hasPermission("xshards.admin")) {
             Player targetPlayer = Bukkit.getPlayer(args[1]);
             if (targetPlayer == null) {
-                player.sendMessage("Player not found.");
+                player.sendMessage(messageManager.get("shards.player-not-found"));
                 return true;
             }
 
             try {
                 int amount = Integer.parseInt(args[2]);
                 shardManager.addShards(targetPlayer, amount);
-                player.sendMessage("You have given " + amount + " shards to " + targetPlayer.getName() + ".");
-                targetPlayer.sendMessage("You have received " + amount + " shards from " + player.getName() + "!");
+                player.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
+                targetPlayer.sendMessage(messageManager.get("shards.received").replace("{amount}", String.valueOf(amount)).replace("{sender}", player.getName()));
             } catch (NumberFormatException e) {
-                player.sendMessage("Invalid amount. Please enter a number.");
+                player.sendMessage(messageManager.get("shards.invalid-amount"));
             }
             return true;
         }
 
-        player.sendMessage("Usage: /shards or /shards give <player> <amount>");
+        player.sendMessage(messageManager.get("shards.usage"));
         return true;
     }
 }

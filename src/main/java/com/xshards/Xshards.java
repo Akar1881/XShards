@@ -11,6 +11,10 @@ public class Xshards extends JavaPlugin {
     private ShopManager shopManager;
     private AfkManager afkManager;
     private DatabaseManager databaseManager;
+    private MessageManager messageManager;
+    private DailyRewardManager dailyRewardManager;
+    private LeaderboardManager leaderboardManager;
+    private TransferListener transferListener;
 
     @Override
     public void onEnable() {
@@ -26,25 +30,36 @@ public class Xshards extends JavaPlugin {
             storageDir.mkdirs();
         }
 
+        // Initialize message manager
+        messageManager = new MessageManager(this);
+        
         // Initialize database manager first
         databaseManager = new DatabaseManager(this);
         
         // Initialize managers
         shardManager = new ShardManager(this);
         shopManager = new ShopManager(this);
-        afkManager = new AfkManager(this);
+        afkManager = new AfkManager(this, messageManager);
+        dailyRewardManager = new DailyRewardManager(this, databaseManager, messageManager);
+        leaderboardManager = new LeaderboardManager(this, databaseManager, messageManager);
+        transferListener = new TransferListener(shardManager, messageManager);
 
         // Register commands and listeners
-        getCommand("shards").setExecutor(new ShardCommand(shardManager));
-        getCommand("store").setExecutor(new ShopCommand(shopManager));
-        getCommand("xshards").setExecutor(new XshardsCommand(this));
-        getCommand("afk").setExecutor(new AfkCommand(afkManager));
-        getCommand("setafk").setExecutor(new SetAfkCommand(afkManager));
-        getCommand("quitafk").setExecutor(new QuitAfkCommand(afkManager));
-        getCommand("afkremove").setExecutor(new AfkRemoveCommand(afkManager));
-        getServer().getPluginManager().registerEvents(new ShardListener(shardManager, this), this);
-        getServer().getPluginManager().registerEvents(new ShopListener(shopManager, shardManager), this);
-        getServer().getPluginManager().registerEvents(new AfkListener(afkManager), this);
+        getCommand("shards").setExecutor(new ShardCommand(shardManager, messageManager));
+        getCommand("store").setExecutor(new ShopCommand(shopManager, messageManager));
+        getCommand("xshards").setExecutor(new XshardsCommand(this, messageManager));
+        getCommand("afk").setExecutor(new AfkCommand(afkManager, messageManager));
+        getCommand("setafk").setExecutor(new SetAfkCommand(afkManager, messageManager));
+        getCommand("quitafk").setExecutor(new QuitAfkCommand(afkManager, messageManager));
+        getCommand("afkremove").setExecutor(new AfkRemoveCommand(afkManager, messageManager));
+        getCommand("transfer").setExecutor(new TransferCommand(shardManager, messageManager));
+        getCommand("leaderboard").setExecutor(new LeaderboardCommand(leaderboardManager, messageManager));
+        getServer().getPluginManager().registerEvents(new ShardListener(shardManager, this, messageManager), this);
+        getServer().getPluginManager().registerEvents(new ShopListener(shopManager, shardManager, messageManager), this);
+        getServer().getPluginManager().registerEvents(new AfkListener(afkManager, messageManager), this);
+        getServer().getPluginManager().registerEvents(new DailyRewardListener(dailyRewardManager), this);
+        getServer().getPluginManager().registerEvents(new LeaderboardListener(leaderboardManager), this);
+        getServer().getPluginManager().registerEvents(transferListener, this);
 
         // PlaceholderAPI integration
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -112,8 +127,17 @@ public class Xshards extends JavaPlugin {
         return this.databaseManager;
     }
 
+    public MessageManager getMessageManager() {
+        return this.messageManager;
+    }
+
+    public DailyRewardManager getDailyRewardManager() {
+        return this.dailyRewardManager;
+    }
+
     public void reloadPlugin() {
         reloadConfig();
+        messageManager.reload();
         
         // Reload database connection if storage type changed
         String currentStorageType = databaseManager.getStorageType();
