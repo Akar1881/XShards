@@ -1,12 +1,13 @@
-# Xshards Plugin v1.2.3
+# Xshards Plugin v1.2.4
 
 Xshards is a comprehensive Minecraft plugin designed to manage a shard-based economy system with player transfers, leaderboards, daily rewards, streaks, and multiple earning methods with a customizable shop interface. 
 
 ## Key Features:
 - **Shard Economy System**: Players can earn shards through various activities, with configurable earning rates and integration with PlaceholderAPI. Database storage support (SQLite or MySQL).
+- **Admin Controls**: Robust shard management including give and remove commands.
 - **Customizable Shop System**: Supports custom items with lore and model data, adjustable shop sizes, and a price editing system with a purchase confirmation interface.
 - **Shard Transfer System**: Enable true player-to-player economy with GUI confirmation dialogs.
-- **Leaderboard GUI**: View top players with ranking system, player heads display, and pagination (7 players per page).
+- **Leaderboard GUI & Holograms**: View top players with ranking system, player heads display, and pagination. Full PlaceholderAPI support for hologram leaderboards (e.g., %xshards_top_name_1%).
 - **Daily Rewards & Streaks**: Automatic daily bonuses with configurable streak multiplier (Easy/Mid/Hard modes).
 - **Advanced AFK System**: 
   - 5-second countdown with movement detection
@@ -25,7 +26,7 @@ Xshards is a comprehensive Minecraft plugin designed to manage a shard-based eco
 - **AFK Rewards**: Accumulate shards while in AFK mode with countdown system, movement detection, and dedicated world support.
 
 ## Commands:
-Includes general commands for checking shard balance, opening the shop, and entering/exiting AFK mode, as well as admin commands for managing the shop and plugin configuration.
+Includes general commands for checking shard balance, opening the shop, and entering/exiting AFK mode, as well as admin commands for managing the shop, player shards (give/remove), and plugin configuration.
 
 ## Permissions:
 Configurable permissions for basic and admin commands, ensuring a tailored experience for players and server administrators.

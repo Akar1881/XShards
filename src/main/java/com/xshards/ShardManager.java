@@ -36,7 +36,15 @@ public class ShardManager {
         ShardData data = playerData.getOrDefault(playerUUID, new ShardData());
         data.addShards(amount);
         playerData.put(playerUUID, data);
-        player.sendMessage("You earned " + amount + " shards!");
+        savePlayerData(player); // Save player's data immediately after updating
+    }
+
+    // Remove shards from a player's account
+    public void removeShards(Player player, int amount) {
+        UUID playerUUID = player.getUniqueId();
+        ShardData data = playerData.getOrDefault(playerUUID, new ShardData());
+        data.removeShards(amount);
+        playerData.put(playerUUID, data);
         savePlayerData(player); // Save player's data immediately after updating
     }
 

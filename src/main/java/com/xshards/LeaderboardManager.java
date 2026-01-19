@@ -124,6 +124,22 @@ public class LeaderboardManager {
         return entries;
     }
 
+    public String getPlayerAtRank(int rank) {
+        List<LeaderboardEntry> entries = getTopPlayers();
+        if (rank > 0 && rank <= entries.size()) {
+            return entries.get(rank - 1).getPlayerName();
+        }
+        return "None";
+    }
+
+    public int getShardsAtRank(int rank) {
+        List<LeaderboardEntry> entries = getTopPlayers();
+        if (rank > 0 && rank <= entries.size()) {
+            return entries.get(rank - 1).getShards();
+        }
+        return 0;
+    }
+
     public static class LeaderboardEntry {
         private final String uuid;
         private final String playerName;

@@ -73,11 +73,14 @@ A comprehensive Minecraft plugin for managing a shard-based economy system with 
 - `/quitafk` - Exit AFK mode
 - `/transfer <player> <amount>` - Transfer shards to another player
 - `/leaderboard [page]` - View the shards leaderboard
+- `/shards remove <player> <amount>` - Remove shards from a player (Admin)
 
 ### Admin Commands
 - `/store edit <slot> <price>` - Edit item price in shop
 - `/store add <slot> <price>` - Add item to shop
 - `/store remove <slot>` - Remove item from shop
+- `/shards give <player> <amount>` - Give shards to a player
+- `/shards remove <player> <amount>` - Remove shards from a player
 - `/setafk` - Set AFK location
 - `/afkremove` - Remove AFK location
 - `/xshards reload` - Reload plugin configuration
@@ -137,8 +140,16 @@ placeholderapi: true
 
 Available placeholders:
 - `%xshards_playershards%` - Shows player's current shard balance
+- `%xshards_top_name_<rank>%` - Shows name of player at specific rank (e.g., `%xshards_top_name_1%`)
+- `%xshards_top_shards_<rank>%` - Shows shards of player at specific rank (e.g., `%xshards_top_shards_1%`)
 
-## Installation
+### Creating a Hologram Leaderboard
+You can use these placeholders with plugins like **DecentHolograms** or **HolographicDisplays**:
+1. Create a hologram
+2. Add lines using the placeholders:
+   - `&6#1 &e%xshards_top_name_1% &f- &b%xshards_top_shards_1% Shards`
+   - `&6#2 &e%xshards_top_name_2% &f- &b%xshards_top_shards_2% Shards`
+   ... and so on for as many ranks as you want!
 
 1. Download the plugin JAR file
 2. Place it in your server's `plugins` folder

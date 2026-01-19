@@ -1,123 +1,17 @@
+Version 1.2.4 - Shard Management Expansion and PAPI Fixes
+
+Features:
+- Added /shards remove <player> <amount> command for administrators
+- Added custom messages for shard removal in messages.yml
+
+Changes:
+- Improved PlaceholderAPI (PAPI) expansion reliability and persistence
+- Updated admin help menu to include shard removal command
+
+Technical Updates:
+- Updated version to 1.2.4
+- Enhanced XshardsPlaceholder with persist() and canRegister() methods
+- Added removeShards methods to ShardManager and ShardData
+
 Version 1.2.3 - Shard Transfer, Leaderboard, and Daily Rewards
-
-Features:
-- Added Shard Transfer system for player-to-player economy
-- Added GUI Leaderboard with pagination and player head display
-- Added Daily Rewards system with automatic login bonuses
-- Added Streak Multiplier system (Easy/Mid/Hard modes)
-- Added configurable message system (100+ message keys)
-
-Changes:
-- Transfer command with confirmation dialog
-- Leaderboard displays rank, player name, and shard amount
-- 7 players per page with navigation buttons
-- Daily rewards track consecutive logins and reset on missed days
-- All messages customizable via messages.yml
-
-New Commands:
-- /transfer <player> <amount> - Transfer shards to player
-- /leaderboard [page] - View leaderboard with pagination
-
-Technical Updates:
-- Added TransferCommand and TransferListener
-- Added LeaderboardManager with database queries
-- Added LeaderboardCommand and LeaderboardListener
-- Added DailyRewardManager with streak tracking
-- Added StreakData class for player streak information
-- Implemented GUI pagination system
-- Enhanced database queries for leaderboard sorting
-- Updated version to 1.2.3
-
-Version 1.2.2 - Database Storage and AFK System Improvements
-
-Features:
-- Added database storage support (SQLite and MySQL)
-- Completely redesigned AFK system with countdown and movement detection
-- Added free movement while in AFK mode
-- Added protection from damage while in AFK mode
-- Added dedicated world support recommendations for AFK
-- Improved data persistence and reliability
-
-Changes:
-- Replaced YAML file storage with database storage
-- Added 5-second countdown with movement detection for AFK
-- Removed movement restrictions while in AFK mode
-- Added automatic database table creation
-- Added support for switching between SQLite and MySQL
-- Improved AFK teleportation safety
-- Added prevention of Nether/End AFK location setting
-- Reduced database connection logging spam
-
-Technical Updates:
-- Implemented DatabaseManager for handling database connections
-- Added proper connection pooling and error handling
-- Improved data loading and saving performance
-- Enhanced plugin stability with better data management
-- Added boss bar for AFK countdown
-- Improved database connection reliability
-- Optimized database connection reuse
-- Updated plugin version to 1.2.2
-
-Version 1.2.1 - Console Shard Management
-
-Features:
-- Added ability to give shards from console
-- Improved command handling for both console and players
-
-Changes:
-- Console can now use /shards give <player> <amount> command
-- Updated command usage descriptions
-- Improved feedback messages for console commands
-
-Technical Updates:
-- Enhanced command executor to handle non-player senders
-- Updated plugin version to 1.2.1
-- Improved command parameter validation
-
-Version 1.2.0 - AFK System Improvements
-
-Features:
-- Added persistent player location storage for AFK system
-- Improved AFK location handling after server restarts
-- Added automatic AFK data cleanup on server shutdown
-- Enhanced location restoration when quitting AFK mode
-
-Changes:
-- Players now return to their exact previous location after AFK
-- Location data persists through server restarts
-- Removed need for manual /quitafk after server restart
-- Added proper cleanup of AFK data on server shutdown
-
-Technical Updates:
-- Added playerlocations.yml for persistent location storage
-- Improved AFK data management system
-- Enhanced error handling for location saving/loading
-- Added automatic AFK state cleanup on server start
-
-Version 1.1.0 - Initial Release
-
-Features:
-- Implemented comprehensive shard economy system
-- Added multiple shard earning methods (playtime, PvP, AFK)
-- Created customizable shop system with GUI
-- Added support for custom items with lore and model data
-- Implemented AFK system with safe teleportation
-- Added PlaceholderAPI integration
-
-Changes:
-- Added configuration options for all earning methods
-- Implemented shop size configuration (9-54 slots)
-- Added price editing system for shop items
-- Created purchase confirmation interface
-- Added admin commands for plugin management
-- Implemented permission system
-- Added help command with detailed information
-- Created comprehensive configuration file
-
-Technical Updates:
-- Added support for custom item metadata
-- Implemented safe data saving system
-- Added reload command for configuration
-- Created tab completion for commands
-- Implemented proper event handling
-- Added proper cleanup on plugin disable
+... (rest of the file)

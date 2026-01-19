@@ -18,4 +18,8 @@ public class ShardData {
     public void addShards(int amount) {
         this.shards += amount;
     }
+
+    public void removeShards(int amount) {
+        this.shards = Math.max(0, this.shards - amount);
+    }
 }

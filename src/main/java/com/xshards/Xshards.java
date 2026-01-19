@@ -63,7 +63,7 @@ public class Xshards extends JavaPlugin {
 
         // PlaceholderAPI integration
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new XshardsPlaceholder(shardManager).register();
+            new XshardsPlaceholder(this, shardManager).register();
             getLogger().info("PlaceholderAPI detected. Shards placeholders registered!");
         } else {
             getLogger().warning("PlaceholderAPI not found. Placeholders will not be available.");
@@ -77,7 +77,7 @@ public class Xshards extends JavaPlugin {
             getLogger().warning("Failed to clear AFK status data: " + e.getMessage());
         }
 
-        getLogger().info("Xshards v1.2.2 has been enabled!");
+        getLogger().info("Xshards v1.2.4 has been enabled!");
     }
 
     @Override
@@ -133,6 +133,10 @@ public class Xshards extends JavaPlugin {
 
     public DailyRewardManager getDailyRewardManager() {
         return this.dailyRewardManager;
+    }
+
+    public LeaderboardManager getLeaderboardManager() {
+        return this.leaderboardManager;
     }
 
     public void reloadPlugin() {

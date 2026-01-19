@@ -29,9 +29,15 @@ public class ShardCommand implements CommandExecutor {
 
                 try {
                     int amount = Integer.parseInt(args[2]);
-                    shardManager.addShards(targetPlayer, amount);
-                    sender.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
-                    targetPlayer.sendMessage(messageManager.get("shards.received").replace("{amount}", String.valueOf(amount)).replace("{sender}", "Console"));
+                    if (args[0].equalsIgnoreCase("give")) {
+                        shardManager.addShards(targetPlayer, amount);
+                        sender.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
+                        targetPlayer.sendMessage(messageManager.get("shards.received").replace("{amount}", String.valueOf(amount)).replace("{sender}", "Console"));
+                    } else if (args[0].equalsIgnoreCase("remove")) {
+                        shardManager.removeShards(targetPlayer, amount);
+                        sender.sendMessage(messageManager.get("shards.removed").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
+                        targetPlayer.sendMessage(messageManager.get("shards.taken").replace("{amount}", String.valueOf(amount)).replace("{sender}", "Console"));
+                    }
                 } catch (NumberFormatException e) {
                     sender.sendMessage(messageManager.get("shards.invalid-amount"));
                 }
@@ -52,8 +58,8 @@ public class ShardCommand implements CommandExecutor {
             return true;
         }
 
-        // /shards give <player> <amount>
-        if (args.length == 3 && args[0].equalsIgnoreCase("give") && player.hasPermission("xshards.admin")) {
+        // /shards give/remove <player> <amount>
+        if (args.length == 3 && player.hasPermission("xshards.admin")) {
             Player targetPlayer = Bukkit.getPlayer(args[1]);
             if (targetPlayer == null) {
                 player.sendMessage(messageManager.get("shards.player-not-found"));
@@ -62,9 +68,17 @@ public class ShardCommand implements CommandExecutor {
 
             try {
                 int amount = Integer.parseInt(args[2]);
-                shardManager.addShards(targetPlayer, amount);
-                player.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
-                targetPlayer.sendMessage(messageManager.get("shards.received").replace("{amount}", String.valueOf(amount)).replace("{sender}", player.getName()));
+                if (args[0].equalsIgnoreCase("give")) {
+                    shardManager.addShards(targetPlayer, amount);
+                    player.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
+                    targetPlayer.sendMessage(messageManager.get("shards.received").replace("{amount}", String.valueOf(amount)).replace("{sender}", player.getName()));
+                } else if (args[0].equalsIgnoreCase("remove")) {
+                    shardManager.removeShards(targetPlayer, amount);
+                    player.sendMessage(messageManager.get("shards.removed").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
+                    targetPlayer.sendMessage(messageManager.get("shards.taken").replace("{amount}", String.valueOf(amount)).replace("{sender}", player.getName()));
+                } else {
+                    player.sendMessage(messageManager.get("shards.usage"));
+                }
             } catch (NumberFormatException e) {
                 player.sendMessage(messageManager.get("shards.invalid-amount"));
             }
