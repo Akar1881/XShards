@@ -1,9 +1,10 @@
-# Xshards Plugin v1.2.4
+# Xshards Plugin v1.2.5
 
 Xshards is a comprehensive Minecraft plugin designed to manage a shard-based economy system with player transfers, leaderboards, daily rewards, streaks, and multiple earning methods with a customizable shop interface. 
 
 ## Key Features:
 - **Shard Economy System**: Players can earn shards through various activities, with configurable earning rates and integration with PlaceholderAPI. Database storage support (SQLite or MySQL).
+- **Global Message Control**: NEW! Every message in the plugin can now be enabled or disabled, giving server owners full control over chat clutter.
 - **Admin Controls**: Robust shard management including give and remove commands.
 - **Customizable Shop System**: Supports custom items with lore and model data, adjustable shop sizes, and a price editing system with a purchase confirmation interface.
 - **Shard Transfer System**: Enable true player-to-player economy with GUI confirmation dialogs.

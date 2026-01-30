@@ -27,16 +27,19 @@ earning:
     enabled: true
     interval: 3600000 # Time interval in milliseconds (1 hour = 3600000 ms)
     amount: 3 # Number of shards earned per interval
+    message-enabled: true # Send message when shards are earned
   
   kills:
     enabled: true
     amount: 10 # Number of shards earned per player kill
+    message-enabled: true # Send message when shards are earned
     
   afk:
     enabled: true
     interval: 30 # Seconds between earnings
     amount: 1 # Number of shards earned per interval
     countdown: 5 # Seconds to wait before teleporting to AFK location
+    message-enabled: true # Send message when shards are earned
     # We highly recommend setting up a dedicated world for AFK using MultiVerse-Core
     # This improves server performance and reduces potential bugs
 

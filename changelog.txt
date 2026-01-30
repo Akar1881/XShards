@@ -1,17 +1,19 @@
-Version 1.2.4 - Shard Management Expansion and PAPI Fixes
+Version 1.2.5 - Global Message Control and Configuration Improvements
 
 Features:
-- Added /shards remove <player> <amount> command for administrators
-- Added custom messages for shard removal in messages.yml
+- Added global and per-message toggle support in messages.yml
+- Every message in the plugin can now be disabled by setting it to an empty string or using a new toggle system
+- Added message-enabled toggles for all shard earning methods in config.yml
 
 Changes:
-- Improved PlaceholderAPI (PAPI) expansion reliability and persistence
-- Updated admin help menu to include shard removal command
+- Improved message handling for better performance
+- Updated default messages.yml with documentation for disabling messages
 
 Technical Updates:
-- Updated version to 1.2.4
-- Enhanced XshardsPlaceholder with persist() and canRegister() methods
-- Added removeShards methods to ShardManager and ShardData
+- Updated version to 1.2.5
+- Refactored MessageManager to handle empty/null messages gracefully
+
+Version 1.2.4 - Shard Management Expansion and PAPI Fixes
 
 Version 1.2.3 - Shard Transfer, Leaderboard, and Daily Rewards
 ... (rest of the file)

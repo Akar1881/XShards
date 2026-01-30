@@ -26,7 +26,13 @@ public class MessageManager {
     }
 
     public String get(String key) {
+        if (!messagesConfig.getBoolean("settings.messages-enabled", true) && !key.contains("error") && !key.contains("no-permission")) {
+            return null;
+        }
         String message = messagesConfig.getString(key, "");
+        if (message.isEmpty()) {
+            return null;
+        }
         // Convert & color codes
         return message.replace("&", "§");
     }

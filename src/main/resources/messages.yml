@@ -1,6 +1,11 @@
 # Xshards Plugin - Messages Configuration
 # Use & for color codes (e.g., &a for green, &c for red, &e for yellow)
 # See https://wiki.ess3.net/wiki/Color_Codes for color code reference
+# 
+# To disable a message, set it to an empty string (e.g., message.key: "")
+# Global toggle: if set to false, all messages except errors will be disabled
+settings:
+  messages-enabled: true
 
 # Command Execution Messages
 command.only-player: "&cThis command can only be executed by a player."

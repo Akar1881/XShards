@@ -411,7 +411,9 @@ public class AfkManager {
 
                     if (countdown <= 0) {
                         plugin.getShardManager().addShards(player, afkAmount);
-                        player.sendMessage(messageManager.get("afk.earned").replace("{amount}", String.valueOf(afkAmount)));
+                        if (plugin.getConfig().getBoolean("earning.afk.message-enabled", true)) {
+                            player.sendMessage(messageManager.get("afk.earned").replace("{amount}", String.valueOf(afkAmount)));
+                        }
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.0f);
                         countdown = (int) afkEarnSeconds;
                     } else {
