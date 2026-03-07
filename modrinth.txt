@@ -1,4 +1,4 @@
-# Xshards Plugin v1.2.5
+# Xshards Plugin v1.2.6
 
 Xshards is a comprehensive Minecraft plugin designed to manage a shard-based economy system with player transfers, leaderboards, daily rewards, streaks, and multiple earning methods with a customizable shop interface. 
 
