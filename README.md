@@ -1,6 +1,6 @@
-# Xshards Plugin
+# Xshards Plugin v1.2.7
 
-A comprehensive Minecraft plugin for managing a shard-based economy system with multiple earning methods and a customizable shop interface.
+A comprehensive Minecraft plugin for managing a shard-based economy system with multiple earning methods, a customizable shop interface, and reliable database persistence.
 
 ## Features
 
@@ -8,13 +8,17 @@ A comprehensive Minecraft plugin for managing a shard-based economy system with 
   - Multiple ways to earn shards
   - Configurable earning rates
   - PlaceholderAPI integration
-  - Database storage (SQLite or MySQL)
+  - Reliable database storage (SQLite or MySQL)
+  - Fixed persistence with batch operations and transaction management
 
-- 🏪 **Customizable Shop System**
+- 🏪 **Fully Customizable Shop System**
   - Support for custom items with lore and model data
   - Adjustable shop size (9-54 slots)
   - Price editing system
   - Purchase confirmation interface
+  - **NEW v1.2.7**: Customize shop GUI title via config
+  - **NEW v1.2.7**: Per-item display names and lore (editable via commands)
+  - **NEW v1.2.7**: Database-backed item customization with full color code support
 
 - 🔄 **Shard Transfer System**
   - Send shards to other players
@@ -77,6 +81,8 @@ A comprehensive Minecraft plugin for managing a shard-based economy system with 
 
 ### Admin Commands
 - `/store edit <slot> <price>` - Edit item price in shop
+- `/store editname <slot> <name>` - Set custom display name for shop item
+- `/store editlore <slot> <line1|line2|...>` - Set lore for shop item (use | to separate lines)
 - `/store add <slot> <price>` - Add item to shop
 - `/store remove <slot>` - Remove item from shop
 - `/shards give <player> <amount>` - Give shards to a player
@@ -113,6 +119,10 @@ storage:
 # Store settings
 store:
   size: 54  # GUI size (9, 18, 27, 36, 45, 54)
+  title: "&6Shard Shop"  # Customize the shop GUI title
+  default-lore:
+    - "&7Price: {price} shards"  # Global lore for all shop items
+  items: {}  # Per-item customization: slot: { display-name: "Name", lore: ["line1"] }
 
 # Shard earning methods
 earning:

@@ -35,6 +35,51 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length >= 1) {
+            if (args[0].equalsIgnoreCase("editname") && player.hasPermission("xshards.admin")) {
+                if (args.length < 3) {
+                    player.sendMessage("&cUsage: /store editname <slot> <name>");
+                    return true;
+                }
+                try {
+                    int slot = Integer.parseInt(args[1]);
+                    String name = String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length));
+                    
+                    if (shopManager.getItemInShop(slot) == null) {
+                        player.sendMessage(messageManager.get("shop.no-item-in-slot").replace("{slot}", String.valueOf(slot)));
+                        return true;
+                    }
+                    
+                    shopManager.setItemDisplayName(slot, name);
+                    player.sendMessage("&aDisplay name set for item in slot " + slot);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(messageManager.get("shop.invalid-number"));
+                }
+                return true;
+            }
+
+            if (args[0].equalsIgnoreCase("editlore") && player.hasPermission("xshards.admin")) {
+                if (args.length < 3) {
+                    player.sendMessage("&cUsage: /store editlore <slot> <line1|line2|...>");
+                    return true;
+                }
+                try {
+                    int slot = Integer.parseInt(args[1]);
+                    String loreStr = String.join(" ", java.util.Arrays.copyOfRange(args, 2, args.length));
+                    
+                    if (shopManager.getItemInShop(slot) == null) {
+                        player.sendMessage(messageManager.get("shop.no-item-in-slot").replace("{slot}", String.valueOf(slot)));
+                        return true;
+                    }
+                    
+                    java.util.List<String> loreLines = java.util.Arrays.asList(loreStr.split("\\|"));
+                    shopManager.setItemLore(slot, loreLines);
+                    player.sendMessage("&aLore set for item in slot " + slot + " (" + loreLines.size() + " lines)");
+                } catch (NumberFormatException e) {
+                    player.sendMessage(messageManager.get("shop.invalid-number"));
+                }
+                return true;
+            }
+
             if (args[0].equalsIgnoreCase("edit") && player.hasPermission("xshards.admin")) {
                 if (args.length != 3) {
                     player.sendMessage(messageManager.get("shop.edit-usage"));
@@ -106,7 +151,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         
         if (args.length == 1) {
             if (sender.hasPermission("xshards.admin")) {
-                completions.addAll(Arrays.asList("edit", "add", "remove"));
+                completions.addAll(Arrays.asList("edit", "editname", "editlore", "add", "remove"));
             }
         } else if (args.length == 2) {
             if (sender.hasPermission("xshards.admin")) {

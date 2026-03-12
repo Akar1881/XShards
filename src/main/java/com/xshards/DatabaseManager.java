@@ -188,7 +188,9 @@ public class DatabaseManager {
             statement.execute("CREATE TABLE IF NOT EXISTS shop_items (" +
                     "slot INT PRIMARY KEY, " +
                     "item_data MEDIUMBLOB NOT NULL, " +
-                    "price DOUBLE NOT NULL" +
+                    "price DOUBLE NOT NULL, " +
+                    "display_name VARCHAR(256), " +
+                    "lore LONGTEXT" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
             // AFK Locations Table
@@ -233,7 +235,9 @@ public class DatabaseManager {
             statement.execute("CREATE TABLE IF NOT EXISTS shop_items (" +
                     "slot INTEGER PRIMARY KEY, " +
                     "item_data BLOB NOT NULL, " +
-                    "price REAL NOT NULL" +
+                    "price REAL NOT NULL, " +
+                    "display_name TEXT, " +
+                    "lore TEXT" +
                     ");");
 
             // AFK Locations Table

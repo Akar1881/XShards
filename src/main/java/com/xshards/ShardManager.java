@@ -130,6 +130,7 @@ public class ShardManager {
     // Save data for all players
     public void saveAllPlayerData() {
         try (Connection conn = databaseManager.getConnection()) {
+            conn.setAutoCommit(false);
             String sql = databaseManager.getStorageType().equals("mysql")
                 ? "INSERT INTO player_shards (uuid, player_name, shards) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE player_name = VALUES(player_name), shards = VALUES(shards)"
                 : "INSERT OR REPLACE INTO player_shards (uuid, player_name, shards) VALUES (?, ?, ?)";
@@ -143,9 +144,16 @@ public class ShardManager {
                         stmt.setString(1, playerUUID.toString());
                         stmt.setString(2, player.getName());
                         stmt.setInt(3, entry.getValue().getShards());
-                        stmt.executeUpdate();
+                        stmt.addBatch();
                     }
                 }
+                stmt.executeBatch();
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Could not save all player data!", e);

@@ -20,6 +20,16 @@ storage:
 # Store settings
 store:
   size: 54 # GUI size (9, 18, 27, 36, 45, 54)
+  # Customize the shop GUI title
+  title: "&6Shard Shop"
+  # Add custom lore to all shop items (supports multiple lines and color codes)
+  # Leave empty list [] to use default lore
+  default-lore:
+    - "&7Price: {price} shards"
+  # Per-item customization: slot number -> custom settings
+  # Format: slot: { display-name: "Custom Name", lore: ["line1", "line2"] }
+  # Example: 0: { display-name: "&6Golden Apple", lore: ["&7Heals 4 hearts", "&7Price: {price} shards"] }
+  items: {}
 
 # Shard earning methods (enable/disable)
 earning:
