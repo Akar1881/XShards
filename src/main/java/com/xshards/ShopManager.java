@@ -136,13 +136,16 @@ public class ShopManager {
         }
     }
 
+    public String getShopTitle() {
+        String shopTitle = plugin.getConfig().getString("store.title", "&6Shard Shop");
+        return ChatColor.translateAlternateColorCodes('&', shopTitle);
+    }
+
     public void openShopGUI(Player player) {
         int size = plugin.getConfig().getInt("store.size", 54);
         size = Math.min(54, Math.max(9, (size / 9) * 9));
         
-        // Get customized shop title from config
-        String shopTitle = plugin.getConfig().getString("store.title", "&6Shard Shop");
-        shopTitle = ChatColor.translateAlternateColorCodes('&', shopTitle);
+        String shopTitle = getShopTitle();
         
         org.bukkit.inventory.Inventory shopInventory = Bukkit.createInventory(null, size, shopTitle);
         

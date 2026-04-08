@@ -24,7 +24,7 @@ public class ShopListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Shard Shop")) {
+        if (event.getView().getTitle().equals(shopManager.getShopTitle())) {
             event.setCancelled(true);
             Player player = (Player) event.getWhoClicked();
 
