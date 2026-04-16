@@ -21,9 +21,9 @@ args = "Build Plugin"
 name = "Build Plugin"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mvn clean package -q && echo 'Build completed successfully at target/Xshards-1.2.5.jar'"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mvn clean package -q && echo 'Build completed successfully! JAR: target/Xshards-1.2.8.jar'"
