@@ -15,7 +15,7 @@ storage:
   # SQLite Configuration
   # SQLite is used by default, so you can leave this as is
   sqlite:
-    file: plugins/XShards/storage/xshards.db
+    file: plugins/Xshards/storage/xshards.db
 
 # Store settings
 store:

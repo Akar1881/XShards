@@ -17,10 +17,10 @@ public class ShardCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // Handle console commands
+        // Handle console / non-player senders (console, command blocks, RCON, etc.)
         if (!(sender instanceof Player)) {
-            // Console can only use the give command
-            if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
+            // Console can use both `give` and `remove`
+            if (args.length == 3 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("remove"))) {
                 Player targetPlayer = Bukkit.getPlayer(args[1]);
                 if (targetPlayer == null) {
                     sender.sendMessage(messageManager.get("shards.player-not-found"));
@@ -29,11 +29,15 @@ public class ShardCommand implements CommandExecutor {
 
                 try {
                     int amount = Integer.parseInt(args[2]);
+                    if (amount <= 0) {
+                        sender.sendMessage(messageManager.get("shards.invalid-amount"));
+                        return true;
+                    }
                     if (args[0].equalsIgnoreCase("give")) {
                         shardManager.addShards(targetPlayer, amount);
                         sender.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
                         targetPlayer.sendMessage(messageManager.get("shards.received").replace("{amount}", String.valueOf(amount)).replace("{sender}", "Console"));
-                    } else if (args[0].equalsIgnoreCase("remove")) {
+                    } else {
                         shardManager.removeShards(targetPlayer, amount);
                         sender.sendMessage(messageManager.get("shards.removed").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));
                         targetPlayer.sendMessage(messageManager.get("shards.taken").replace("{amount}", String.valueOf(amount)).replace("{sender}", "Console"));
@@ -68,6 +72,10 @@ public class ShardCommand implements CommandExecutor {
 
             try {
                 int amount = Integer.parseInt(args[2]);
+                if (amount <= 0) {
+                    player.sendMessage(messageManager.get("shards.invalid-amount"));
+                    return true;
+                }
                 if (args[0].equalsIgnoreCase("give")) {
                     shardManager.addShards(targetPlayer, amount);
                     player.sendMessage(messageManager.get("shards.given").replace("{amount}", String.valueOf(amount)).replace("{player}", targetPlayer.getName()));

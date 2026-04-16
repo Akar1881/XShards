@@ -5,13 +5,16 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
-import java.util.ArrayList;
 
 public class ShopListener implements Listener {
+    private static final String CONFIRM_TITLE = "Confirm Purchase";
+
     private final ShopManager shopManager;
     private final ShardManager shardManager;
     private final MessageManager messageManager;
@@ -24,26 +27,126 @@ public class ShopListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals(shopManager.getShopTitle())) {
+        String title = event.getView().getTitle();
+
+        // Confirmation GUI handling
+        if (CONFIRM_TITLE.equals(title)) {
             event.setCancelled(true);
+
+            if (!(event.getWhoClicked() instanceof Player)) return;
             Player player = (Player) event.getWhoClicked();
 
-            if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-                int slot = event.getSlot();
-                ShopItem item = shopManager.getItemInShop(slot);
-                if (item != null) {
-                    if (shardManager.getShards(player) >= item.getPrice()) {
-                        openConfirmationGUI(player, item);
-                    } else {
-                        player.sendMessage(messageManager.get("shop.insufficient-shards"));
+            // Only react to clicks inside the confirmation top inventory.
+            Inventory top = event.getView().getTopInventory();
+            if (event.getClickedInventory() == null || event.getClickedInventory() != top) {
+                return;
+            }
+
+            ItemStack clicked = event.getCurrentItem();
+            if (clicked == null || clicked.getType() == Material.AIR) {
+                return;
+            }
+
+            ShopItem pendingItem = shardManager.getPendingPurchase(player);
+            if (pendingItem == null) {
+                player.closeInventory();
+                return;
+            }
+
+            if (clicked.getType() == Material.GREEN_WOOL) {
+                double price = pendingItem.getPrice();
+                int priceInt = (int) Math.ceil(price);
+
+                // Re-verify the player still has enough shards (defends against
+                // race conditions and stale GUIs).
+                if (shardManager.getShards(player) < priceInt) {
+                    player.sendMessage(messageManager.get("shop.insufficient-shards"));
+                    shardManager.clearPendingPurchase(player);
+                    player.closeInventory();
+                    return;
+                }
+
+                // Deduct shards FIRST so a failed item delivery cannot grant a free item.
+                shardManager.removeShards(player, priceInt);
+
+                ItemStack purchasedItem = pendingItem.getItem().clone();
+                ItemMeta meta = purchasedItem.getItemMeta();
+                if (meta != null && meta.hasLore()) {
+                    List<String> lore = meta.getLore();
+                    if (lore != null) {
+                        lore.removeIf(line -> line.contains("Price:"));
+                        meta.setLore(lore);
+                        purchasedItem.setItemMeta(meta);
                     }
                 }
+
+                java.util.Map<Integer, ItemStack> leftover = player.getInventory().addItem(purchasedItem);
+                if (leftover != null && !leftover.isEmpty()) {
+                    // Inventory was full; drop remainder at the player's feet so they
+                    // never lose what they paid for.
+                    for (ItemStack drop : leftover.values()) {
+                        player.getWorld().dropItemNaturally(player.getLocation(), drop);
+                    }
+                }
+
+                player.sendMessage(messageManager.get("shop.purchase-success")
+                    .replace("{item}", purchasedItem.getType().toString())
+                    .replace("{price}", String.valueOf(price)));
+            } else if (clicked.getType() == Material.RED_WOOL) {
+                player.sendMessage(messageManager.get("shop.purchase-cancelled"));
+            } else {
+                return;
+            }
+
+            shardManager.clearPendingPurchase(player);
+            player.closeInventory();
+            return;
+        }
+
+        // Shop GUI handling
+        if (title.equals(shopManager.getShopTitle())) {
+            event.setCancelled(true);
+
+            if (!(event.getWhoClicked() instanceof Player)) return;
+            Player player = (Player) event.getWhoClicked();
+
+            // Only react to clicks in the shop's top inventory; ignore clicks
+            // in the player's own inventory below.
+            Inventory top = event.getView().getTopInventory();
+            if (event.getClickedInventory() == null || event.getClickedInventory() != top) {
+                return;
+            }
+
+            ItemStack clicked = event.getCurrentItem();
+            if (clicked == null || clicked.getType() == Material.AIR) {
+                return;
+            }
+
+            int slot = event.getRawSlot();
+            ShopItem item = shopManager.getItemInShop(slot);
+            if (item == null) {
+                return;
+            }
+
+            int priceInt = (int) Math.ceil(item.getPrice());
+            if (shardManager.getShards(player) >= priceInt) {
+                openConfirmationGUI(player, item);
+            } else {
+                player.sendMessage(messageManager.get("shop.insufficient-shards"));
             }
         }
     }
 
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (CONFIRM_TITLE.equals(event.getView().getTitle())
+                && event.getPlayer() instanceof Player) {
+            shardManager.clearPendingPurchase((Player) event.getPlayer());
+        }
+    }
+
     private void openConfirmationGUI(Player player, ShopItem item) {
-        org.bukkit.inventory.Inventory confirmationGui = Bukkit.createInventory(null, 9, "Confirm Purchase");
+        Inventory confirmationGui = Bukkit.createInventory(null, 9, CONFIRM_TITLE);
 
         ItemStack confirmItem = new ItemStack(Material.GREEN_WOOL);
         ItemMeta confirmMeta = confirmItem.getItemMeta();
@@ -61,40 +164,10 @@ public class ShopListener implements Listener {
 
         confirmationGui.setItem(3, confirmItem);
         confirmationGui.setItem(5, cancelItem);
-        player.openInventory(confirmationGui);
+
+        // Track pending purchase BEFORE opening the inventory so the close
+        // listener and click handler can rely on the state being set.
         shardManager.setPendingPurchase(player, item);
-    }
-
-    @EventHandler
-    public void onConfirmationClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Confirm Purchase")) {
-            event.setCancelled(true);
-            Player player = (Player) event.getWhoClicked();
-            ShopItem pendingItem = shardManager.getPendingPurchase(player);
-
-            if (pendingItem != null && event.getCurrentItem() != null) {
-                if (event.getCurrentItem().getType() == Material.GREEN_WOOL) {
-                    double price = pendingItem.getPrice();
-                    ItemStack purchasedItem = pendingItem.getItem().clone();
-                    // Remove price lore before giving to player
-                    ItemMeta meta = purchasedItem.getItemMeta();
-                    if (meta != null && meta.hasLore()) {
-                        List<String> lore = meta.getLore();
-                        if (lore != null) {
-                            lore.removeIf(line -> line.contains("Price:"));
-                            meta.setLore(lore);
-                            purchasedItem.setItemMeta(meta);
-                        }
-                    }
-                    shardManager.addShards(player, -((int)price));
-                    player.getInventory().addItem(purchasedItem);
-                    player.sendMessage(messageManager.get("shop.purchase-success").replace("{item}", purchasedItem.getType().toString()).replace("{price}", String.valueOf(price)));
-                } else if (event.getCurrentItem().getType() == Material.RED_WOOL) {
-                    player.sendMessage(messageManager.get("shop.purchase-cancelled"));
-                }
-                shardManager.clearPendingPurchase(player);
-                player.closeInventory();
-            }
-        }
+        player.openInventory(confirmationGui);
     }
 }

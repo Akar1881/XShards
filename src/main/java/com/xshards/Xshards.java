@@ -70,14 +70,15 @@ public class Xshards extends JavaPlugin {
         }
 
         // Clear any lingering AFK data from previous server session
-        try {
-            databaseManager.getConnection().prepareStatement("DELETE FROM afk_status").executeUpdate();
+        try (java.sql.Connection conn = databaseManager.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement("DELETE FROM afk_status")) {
+            stmt.executeUpdate();
             getLogger().info("AFK status data has been reset on server startup.");
         } catch (Exception e) {
             getLogger().warning("Failed to clear AFK status data: " + e.getMessage());
         }
 
-        getLogger().info("Xshards v1.2.4 has been enabled!");
+        getLogger().info("Xshards v" + getDescription().getVersion() + " has been enabled!");
     }
 
     @Override

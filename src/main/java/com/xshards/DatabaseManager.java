@@ -10,54 +10,21 @@ import java.util.logging.Level;
 
 public class DatabaseManager {
     private final Xshards plugin;
-    private Connection connection;
     private String storageType;
     private String host, database, username, password;
     private int port;
     private String sqliteFile;
     private boolean connected = false;
+    private boolean driversLoaded = false;
+    private boolean connectionLogged = false;
 
     public DatabaseManager(Xshards plugin) {
         this.plugin = plugin;
         loadConfig();
-        connect();
-        createTables();
-    }
-
-    private void loadConfig() {
-        FileConfiguration config = plugin.getConfig();
-        storageType = config.getString("storage.type", "sqlite").toLowerCase();
-        
-        // Load MySQL settings if needed
-        if (storageType.equals("mysql")) {
-            host = config.getString("storage.mysql.host", "localhost");
-            port = config.getInt("storage.mysql.port", 3306);
-            database = config.getString("storage.mysql.database", "xshards");
-            username = config.getString("storage.mysql.user", "root");
-            password = config.getString("storage.mysql.password", "password");
-        } else {
-            // Load SQLite settings
-            sqliteFile = config.getString("storage.sqlite.file", "plugins/XShards/storage/xshards.db");
-        }
-    }
-
-    // Track if we've already logged the connection message
-    private boolean connectionLogged = false;
-    
-    /**
-     * Connect to the database
-     * This method connects to either MySQL or SQLite based on the configuration
-     */
-    public void connect() {
-        try {
-            if (storageType.equals("mysql")) {
-                connectToMySQL();
-            } else {
-                connectToSQLite();
-            }
+        loadDrivers();
+        // Verify we can connect at least once and create tables.
+        try (Connection testConn = openNewConnection()) {
             connected = true;
-            
-            // Only log the connection message once
             if (!connectionLogged) {
                 plugin.getLogger().info("Successfully connected to " + storageType.toUpperCase() + " database");
                 connectionLogged = true;
@@ -66,100 +33,87 @@ public class DatabaseManager {
             plugin.getLogger().severe("Failed to connect to database: " + e.getMessage());
             e.printStackTrace();
         }
+        createTables();
     }
 
-    private void connectToMySQL() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            return;
-        }
+    private void loadConfig() {
+        FileConfiguration config = plugin.getConfig();
+        storageType = config.getString("storage.type", "sqlite").toLowerCase();
 
-        synchronized (this) {
-            if (connection != null && !connection.isClosed()) {
-                return;
-            }
-            
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(
-                    "jdbc:mysql://" + host + ":" + port + "/" + database + 
-                    "?useSSL=false&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8",
-                    username, password);
-            } catch (ClassNotFoundException e) {
-                plugin.getLogger().severe("MySQL JDBC driver not found!");
-                throw new SQLException("MySQL JDBC driver not found!");
-            }
+        if (storageType.equals("mysql")) {
+            host = config.getString("storage.mysql.host", "localhost");
+            port = config.getInt("storage.mysql.port", 3306);
+            database = config.getString("storage.mysql.database", "xshards");
+            username = config.getString("storage.mysql.user", "root");
+            password = config.getString("storage.mysql.password", "password");
+        } else {
+            sqliteFile = config.getString("storage.sqlite.file", "plugins/Xshards/storage/xshards.db");
         }
     }
 
-    private void connectToSQLite() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            return;
-        }
-
-        synchronized (this) {
-            if (connection != null && !connection.isClosed()) {
-                return;
-            }
-            
-            try {
-                Class.forName("org.sqlite.JDBC");
-                
-                // Ensure the directory exists
-                File dbFile = new File(sqliteFile);
-                File parentDir = dbFile.getParentFile();
-                if (parentDir != null && !parentDir.exists()) {
-                    parentDir.mkdirs();
-                }
-                
-                connection = DriverManager.getConnection("jdbc:sqlite:" + sqliteFile);
-                
-                // Enable foreign keys for SQLite
-                try (Statement statement = connection.createStatement()) {
-                    statement.execute("PRAGMA foreign_keys = ON;");
-                }
-            } catch (ClassNotFoundException e) {
-                plugin.getLogger().severe("SQLite JDBC driver not found!");
-                throw new SQLException("SQLite JDBC driver not found!");
-            }
-        }
-    }
-
-    public void close() {
+    private void loadDrivers() {
         try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-                connected = false;
+            if (storageType.equals("mysql")) {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+            } else {
+                Class.forName("org.sqlite.JDBC");
             }
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error closing database connection: " + e.getMessage(), e);
+            driversLoaded = true;
+        } catch (ClassNotFoundException e) {
+            plugin.getLogger().severe("JDBC driver not found for " + storageType + ": " + e.getMessage());
         }
     }
 
     /**
-     * Get a database connection
-     * This method reuses the existing connection if it's valid
-     * 
-     * @return A database connection
-     * @throws SQLException If a database error occurs
+     * Open a brand-new database connection. Each call returns a fresh
+     * connection that the caller MUST close (typically via try-with-resources).
+     * This avoids the "statement pointer closed" / "database has been closed"
+     * errors caused by sharing one connection across threads.
+     */
+    private Connection openNewConnection() throws SQLException {
+        if (!driversLoaded) {
+            loadDrivers();
+            if (!driversLoaded) {
+                throw new SQLException("JDBC driver not loaded for " + storageType);
+            }
+        }
+
+        Connection conn;
+        if (storageType.equals("mysql")) {
+            conn = DriverManager.getConnection(
+                "jdbc:mysql://" + host + ":" + port + "/" + database +
+                    "?useSSL=false&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8",
+                username, password);
+        } else {
+            File dbFile = new File(sqliteFile);
+            File parentDir = dbFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+            conn = DriverManager.getConnection("jdbc:sqlite:" + sqliteFile);
+            try (Statement statement = conn.createStatement()) {
+                statement.execute("PRAGMA foreign_keys = ON;");
+                // Improve concurrent read/write behaviour on SQLite.
+                statement.execute("PRAGMA journal_mode = WAL;");
+                statement.execute("PRAGMA busy_timeout = 5000;");
+            } catch (SQLException ignored) {
+                // PRAGMAs are best-effort; connection is still usable.
+            }
+        }
+        return conn;
+    }
+
+    public void close() {
+        // Nothing to keep open; connections are per-call now.
+        connected = false;
+    }
+
+    /**
+     * Get a database connection. Returns a NEW connection each time.
+     * Callers MUST close the returned connection (use try-with-resources).
      */
     public Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connect();
-            return connection;
-        }
-        
-        // Test connection validity and reconnect if needed
-        try {
-            if (!connection.isValid(1)) {
-                plugin.getLogger().info("Database connection lost. Reconnecting...");
-                connect();
-            }
-        } catch (SQLException e) {
-            // If isValid throws an exception, try to reconnect
-            connect();
-        }
-        
-        return connection;
+        return openNewConnection();
     }
 
     public void createTables() {
@@ -176,15 +130,14 @@ public class DatabaseManager {
     }
 
     private void createMySQLTables() throws SQLException {
-        try (Statement statement = getConnection().createStatement()) {
-            // Player Shards Table
+        try (Connection conn = getConnection();
+             Statement statement = conn.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS player_shards (" +
                     "uuid VARCHAR(36) PRIMARY KEY, " +
                     "player_name VARCHAR(16) NOT NULL, " +
                     "shards INT NOT NULL DEFAULT 0" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-            // Shop Items Table
             statement.execute("CREATE TABLE IF NOT EXISTS shop_items (" +
                     "slot INT PRIMARY KEY, " +
                     "item_data MEDIUMBLOB NOT NULL, " +
@@ -193,7 +146,6 @@ public class DatabaseManager {
                     "lore LONGTEXT" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-            // AFK Locations Table
             statement.execute("CREATE TABLE IF NOT EXISTS afk_location (" +
                     "id INT PRIMARY KEY AUTO_INCREMENT, " +
                     "world VARCHAR(64) NOT NULL, " +
@@ -202,7 +154,6 @@ public class DatabaseManager {
                     "z DOUBLE NOT NULL" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-            // Player Locations Table
             statement.execute("CREATE TABLE IF NOT EXISTS player_locations (" +
                     "uuid VARCHAR(36) PRIMARY KEY, " +
                     "world VARCHAR(64) NOT NULL, " +
@@ -213,7 +164,6 @@ public class DatabaseManager {
                     "pitch FLOAT NOT NULL" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-            // AFK Status Table
             statement.execute("CREATE TABLE IF NOT EXISTS afk_status (" +
                     "uuid VARCHAR(36) PRIMARY KEY, " +
                     "is_afk BOOLEAN NOT NULL DEFAULT FALSE, " +
@@ -223,15 +173,14 @@ public class DatabaseManager {
     }
 
     private void createSQLiteTables() throws SQLException {
-        try (Statement statement = getConnection().createStatement()) {
-            // Player Shards Table
+        try (Connection conn = getConnection();
+             Statement statement = conn.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS player_shards (" +
                     "uuid TEXT PRIMARY KEY, " +
                     "player_name TEXT NOT NULL, " +
                     "shards INTEGER NOT NULL DEFAULT 0" +
                     ");");
 
-            // Shop Items Table
             statement.execute("CREATE TABLE IF NOT EXISTS shop_items (" +
                     "slot INTEGER PRIMARY KEY, " +
                     "item_data BLOB NOT NULL, " +
@@ -240,7 +189,6 @@ public class DatabaseManager {
                     "lore TEXT" +
                     ");");
 
-            // AFK Locations Table
             statement.execute("CREATE TABLE IF NOT EXISTS afk_location (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "world TEXT NOT NULL, " +
@@ -249,7 +197,6 @@ public class DatabaseManager {
                     "z REAL NOT NULL" +
                     ");");
 
-            // Player Locations Table
             statement.execute("CREATE TABLE IF NOT EXISTS player_locations (" +
                     "uuid TEXT PRIMARY KEY, " +
                     "world TEXT NOT NULL, " +
@@ -260,7 +207,6 @@ public class DatabaseManager {
                     "pitch REAL NOT NULL" +
                     ");");
 
-            // AFK Status Table
             statement.execute("CREATE TABLE IF NOT EXISTS afk_status (" +
                     "uuid TEXT PRIMARY KEY, " +
                     "is_afk INTEGER NOT NULL DEFAULT 0, " +
@@ -269,7 +215,6 @@ public class DatabaseManager {
         }
     }
 
-    // Utility methods for serializing/deserializing Bukkit objects
     public static byte[] serializeItemStack(ItemStack item) {
         try {
             java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
@@ -296,8 +241,6 @@ public class DatabaseManager {
             return null;
         }
     }
-
-    // Migration methods removed as we're not using YAML files anymore
 
     public String getStorageType() {
         return storageType;

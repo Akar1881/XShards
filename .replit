@@ -26,4 +26,4 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mvn clean package -q && echo 'Build completed successfully! JAR: target/Xshards-1.2.8.jar'"
+args = "mvn clean package -q && echo 'Build completed successfully! JAR: target/Xshards-1.2.9.jar'"
